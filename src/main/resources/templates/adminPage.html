@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Page</title>
+    <style>
+        .error-message {
+            font-size:90%;
+            font-style:italic;
+            color:red;
+        }
+    </style>
+</head>
+<body>
+<!-- Include _menu.html -->
+<th:block th:include="/_menu"></th:block>
+
+<h2>Admin Page</h2>
+<h3>Welcome :
+    <span th:utext="${#request.userPrincipal.name}"></span>
+</h3>
+<b>This is protected page!</b>
+
+<br/><br/>
+
+<div th:if="${userInfo != null}" th:utext="${userInfo}"></div>
+
+<div th:if="not ${#lists.isEmpty(joblist)}">
+    <table border=1 cellpadding=10 cellspacing=0>
+        <tr>
+            <th >JobId</th>
+            <th >JobName</th>
+            <th >JobChecker</th>
+            <th >JobWorker</th>
+            <th >JobValue</th>
+            <th >JobStatus</th>
+        </tr>
+        <tr th:each="job : ${joblist}">
+            <td th:text="${job.getJobId()}">JobId</td>
+            <td th:text="${job.getJobName()}">JobName</td>
+            <td th:text="${job.getJobWorker()}">JobWorker</td>
+            <td th:text="${job.getJobChecker()}">JobChecker</td>
+            <td th:text="${job.getJobValue()}">JobValue</td>
+            <td th:text="${job.getJobStatus()}">JobStatus</td>
+        </tr>
+    </table>
+</div>
+
+<form th:object="${newjob}" method="POST">
+    <label for="createjob"></label><input name="createjob" id="createjob" th:field="*{jobName}">
+    <input type="submit" value="Submit" />
+    <div th:if="not ${#lists.isEmpty(ShowAllJob)}">
+        <table border=1 cellpadding=10 cellspacing=0>
+            <tr>
+                <th >JobId</th>
+                <th >JobName</th>
+                <th >JobChecker</th>
+                <th >JobWorker</th>
+                <th >JobValue</th>
+                <th >JobStatus</th>
+            </tr>
+            <tr th:each="job : ${ShowAllJob}">
+                <td th:text="${job.getJobId()}">JobId</td>
+                <td th:text="${job.getJobName()}">JobName</td>
+                <td th:text="${job.getJobWorker()}">JobWorker</td>
+                <td th:text="${job.getJobChecker()}">JobChecker</td>
+                <td th:text="${job.getJobValue()}">JobValue</td>
+                <td th:text="${job.getJobStatus()}">JobStatus</td>
+            </tr>
+        </table>
+    </div>
+</form>
+
+<div class="error-message" th:utext="${Message}"></div>
+<div class="error-message" th:utext="${errorMessage}"></div>
+</body>
+
+</html>
