@@ -163,12 +163,12 @@ public class SecurityController {
                              BindingResult result, //
                              final RedirectAttributes redirectAttributes) {
 
-        // Validation error.
-        if (result.hasErrors()) {
-            return "signupPage";
-        }
+            // Validation error.
+            if (result.hasErrors()) {
+                return "signupPage";
+            }
 
-        AppRole appRole = new AppRole(2L, "ROLE_ADMIN");
+        AppRole appRole = new AppRole(1L, "ROLE_USER");
 
         AppUser registered = null;
 

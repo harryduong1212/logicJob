@@ -17,17 +17,15 @@ create table app_user (user_id  bigserial not null,
     primary key (user_id)
 );
 
-create table checker_job (job_id int8,
-    checker_id int8 not null,
-    primary key (checker_id)
-);
-
 create table job_logic (job_id  bigserial not null,
-    job_checker int4,
+    job_checker int8,
+    job_flow int8 not null,
     job_name varchar(128) not null,
-    job_status int4 not null,
+    job_status varchar(36) not null,
     job_value int4 not null,
-    job_worker int4,
+    job_worker int8,
+    checker_id int8,
+    worker_id int8,
     primary key (job_id)
 );
 
@@ -38,7 +36,20 @@ create table persistent_logins (series varchar(64) not null,
     primary key (series)
 );
 
-create table user_connections (userid varchar(255) not null,
+create table task_job (task_id  bigserial not null,
+    task_checker int8,
+    task_name varchar(128) not null,
+    task_status varchar(36) not null,
+    task_value int4, task_worker int8,
+    task int8, primary key (task_id)
+);
+
+create table user_role (role_id int8,
+    user_id int8 not null,
+    primary key (user_id)
+);
+
+create table userconnection (userid varchar(255) not null,
     provideruserid varchar(255) not null,
     providerid varchar(255) not null,
     accesstoken varchar(512),
@@ -52,11 +63,6 @@ create table user_connections (userid varchar(255) not null,
     primary key (userid, provideruserid, providerid)
 );
 
-create table user_role (role_id int8,
-    user_id int8 not null,
-    primary key (user_id)
-);
-
 create table verification_tokens (id  bigserial not null,
     created_date date,
     expiry_date date,
@@ -65,22 +71,17 @@ create table verification_tokens (id  bigserial not null,
     primary key (id)
 );
 
-create table worker_job (job_id int8,
-    worker_id int8 not null,
-    primary key (worker_id)
-);
-
 alter table app_role add constraint APP_ROLE_UK unique (role_name);
 alter table app_user add constraint APP_USER_UK unique (user_name);
 alter table app_user add constraint APP_USER_UK2 unique (email);
 alter table job_logic add constraint JOB_LOGIC_UK unique (job_name);
-alter table checker_job add constraint FK21meb11umar0jexplopbkxi5d foreign key (job_id) references app_user;
-alter table checker_job add constraint FKb3hes22wywg3nuc2v239tnmnp foreign key (checker_id) references job_logic;
+alter table task_job add constraint TASK_JOB_UK unique (task_name);
+alter table job_logic add constraint FKthvgg0cru7oobis9uc3p5bvtw foreign key (checker_id) references app_user;
+alter table job_logic add constraint FKqtw6231ti3dlbt3b8gxj6xlh6 foreign key (worker_id) references app_user;
+alter table task_job add constraint FKe1s1rvu6ndb4rmoiyrgu50um3 foreign key (task) references job_logic;
 alter table user_role add constraint FKp6m37g6n6c288s096400uw8fw foreign key (role_id) references app_role;
 alter table user_role add constraint FKg7fr1r7o0fkk41nfhnjdyqn7b foreign key (user_id) references app_user;
 alter table verification_tokens add constraint FK93spwk89ipbftmp48wmkjipql foreign key (user_id) references app_user;
-alter table worker_job add constraint FKgpq2bma5m05ykvorv6xvf2tjk foreign key (job_id) references app_user;
-alter table worker_job add constraint FKt7e5v55jb4awhdkstv9ej4mh9 foreign key (worker_id) references job_logic;
 insert into app_role (role_name) values ('ROLE_USER');
 insert into app_role (role_name) values ('ROLE_ADMIN');
 insert into app_role (role_name) values ('ROLE_MANAGER');

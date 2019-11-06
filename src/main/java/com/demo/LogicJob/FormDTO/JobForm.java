@@ -9,8 +9,10 @@ import lombok.*;
 @Builder
 public class JobForm {
     private Long jobId;
-    private Long jobChecker;
-    private Long jobWorker;
+    private Long jobCheckerId;
+    private Long jobWorkerId;
+    private String jobChecker;
+    private String jobWorker;
     private String jobName;
     private String jobStatus;
     private int jobValue;

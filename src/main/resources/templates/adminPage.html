@@ -25,6 +25,7 @@
 <div th:if="${userInfo != null}" th:utext="${userInfo}"></div>
 
 <div th:if="not ${#lists.isEmpty(joblist)}">
+
     <table border=1 cellpadding=10 cellspacing=0>
         <tr>
             <th >JobId</th>
@@ -35,20 +36,21 @@
             <th >JobStatus</th>
         </tr>
         <tr th:each="job : ${joblist}">
-            <td th:text="${job.getJobId()}">JobId</td>
-            <td th:text="${job.getJobName()}">JobName</td>
-            <td th:text="${job.getJobWorker()}">JobWorker</td>
-            <td th:text="${job.getJobChecker()}">JobChecker</td>
-            <td th:text="${job.getJobValue()}">JobValue</td>
-            <td th:text="${job.getJobStatus()}">JobStatus</td>
+                <td th:text="${job.getJobId()}">JobId</td>
+                <td th:text="${job.getJobName()}">JobName</td>
+                <td th:text="${job.getJobWorker()}"></td>
+                <td th:text="${job.getJobChecker()}"></td>
+                <td th:text="${job.getJobValue()}">JobValue</td>
+                <td th:text="${job.getJobStatus()}">JobStatus</td>
         </tr>
     </table>
+
 </div>
 
-<form th:object="${newjob}" method="POST">
-    <label for="createjob"></label><input name="createjob" id="createjob" th:field="*{jobName}">
-    <input type="submit" value="Submit" />
-    <div th:if="not ${#lists.isEmpty(ShowAllJob)}">
+<form th:object="${newjob}" method="POST" id="createJobForm">
+    <label for="createjob"></label><input name="createjob" id="createjob" th:field="*{jobName}" >
+    <input type="submit" value="Create new job" />
+    <div th:if="not ${#lists.isEmpty(ShowAllJob)}" >
         <table border=1 cellpadding=10 cellspacing=0>
             <tr>
                 <th >JobId</th>

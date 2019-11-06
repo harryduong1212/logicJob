@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -33,18 +34,32 @@ public class JobLogic {
     @Column(name = "job_Checker", length = 36, nullable = true)
     private Long jobChecker;
 
+    @Column(name = "job_Flow", length = 36, nullable = false)
+    private Long jobFlow;
+
     @Column(name = "job_Status", length = 36, nullable = false)
     private String jobStatus;
 
-    @ManyToOne(fetch=FetchType.EAGER)
-    @JoinTable(name = "Worker_Job",
-            joinColumns = { @JoinColumn(name = "Worker_Id") },
-            inverseJoinColumns = { @JoinColumn(name = "Job_Id") })
+    @OneToMany(mappedBy="jobTask", cascade = CascadeType.ALL)
+    private List<TaskJob> listTask;
+
+    @ManyToOne
+    @JoinColumn(name = "Worker_Id")
     private AppUser workerJob;
 
-    @ManyToOne(fetch=FetchType.EAGER)
-    @JoinTable(name = "Checker_Job",
-            joinColumns = { @JoinColumn(name = "Checker_Id") },
-            inverseJoinColumns = { @JoinColumn(name = "Job_Id") })
+    @ManyToOne
+    @JoinColumn(name = "Checker_Id")
     private AppUser checkerJob;
+
+//    @ManyToOne(fetch=FetchType.EAGER)
+//    @JoinTable(name = "Worker_Job",
+//            joinColumns = { @JoinColumn(name = "Worker_Id") },
+//            inverseJoinColumns = { @JoinColumn(name = "Job_Id") })
+//    private AppUser workerJob;
+
+//    @ManyToOne(fetch=FetchType.EAGER)
+//    @JoinTable(name = "Checker_Job",
+//            joinColumns = { @JoinColumn(name = "Checker_Id") },
+//            inverseJoinColumns = { @JoinColumn(name = "Job_Id") })
+//    private AppUser checkerJob;
 }

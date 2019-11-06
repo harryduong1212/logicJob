@@ -7,21 +7,20 @@ import com.demo.LogicJob.FormDTO.AppUserForm;
 import com.demo.LogicJob.FormDTO.JobForm;
 import com.demo.LogicJob.Service.JobLogicService;
 import com.demo.LogicJob.Utils.WebUtils;
+import com.demo.LogicJob.Validator.AssignFormValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @Controller
 public class JobController {
@@ -31,6 +30,25 @@ public class JobController {
 
     @Autowired
     private JobLogicService jobLogicService;
+
+    @Autowired
+    private AssignFormValidator assignFormValidator;
+
+    @InitBinder
+    protected void initBinder(WebDataBinder dataBinder) {
+
+        // Form target
+        Object target = dataBinder.getTarget();
+        if (target == null) {
+            return;
+        }
+        System.out.println("Target=" + target);
+
+        if (target.getClass() == JobForm.class) {
+            dataBinder.setValidator(assignFormValidator);
+        }
+        // ...
+    }
 
 
     @RequestMapping(value = "/admin", method = RequestMethod.GET)
@@ -73,5 +91,49 @@ public class JobController {
         }
         jobForm.setJobName("");
         return "adminPage";
+    }
+
+    @RequestMapping(value = "/assign", method = RequestMethod.GET)
+    public String assignJobPage(Model model, Principal principal) {
+
+        // After user login successfully.
+//        String userName = principal.getName();
+//        System.out.println("User name: " + userName);
+//        UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
+//        String userInfo = WebUtils.toString(loginedUser);
+//        model.addAttribute("userInfo", userInfo);
+        model.addAttribute("newjob", new JobForm());
+
+        List<JobLogic> jobList = new ArrayList<>();
+        jobList = jobLogicRepository.findAllByOrderByJobIdAsc();
+        try {
+            model.addAttribute("message", "Job List");
+            model.addAttribute("joblist", jobList);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return "assignJobPage";
+    }
+
+    @RequestMapping(value = "/assign", method = RequestMethod.POST)
+    public String assignJob(Model model,
+                            @ModelAttribute("newjob") @Validated JobForm jobForm,
+                            BindingResult result) {
+        // Validation error.
+        if (result.hasErrors()) {
+            return "assignJobPage";
+        }
+
+        try {
+            String str = jobLogicService.assignUserJob(jobForm.getJobWorker(), jobForm.getJobChecker(), jobForm.getJobId());
+            model.addAttribute("Message", str);
+        } catch (Exception ex) {
+            model.addAttribute("errorMessage", "Error " + ex.getMessage());
+            ex.printStackTrace();
+            return "assignJobPage";
+        }
+
+        return "assignJobPage";
     }
 }

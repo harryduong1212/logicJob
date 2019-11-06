@@ -46,9 +46,9 @@ public class AppUser extends Auditable<String> {
             inverseJoinColumns = { @JoinColumn(name = "Role_Id") })
     private AppRole roles;
 
-    @OneToMany(fetch=FetchType.EAGER, mappedBy="workerJob")
+    @OneToMany(mappedBy="workerJob", cascade = CascadeType.ALL)
     private List<JobLogic> listJobWorker;
 
-    @OneToMany(fetch=FetchType.EAGER, mappedBy="checkerJob")
+    @OneToMany(mappedBy="checkerJob", cascade = CascadeType.ALL)
     private List<JobLogic> listJobChecker;
 }
