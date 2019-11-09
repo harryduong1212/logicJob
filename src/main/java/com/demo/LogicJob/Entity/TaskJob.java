@@ -36,7 +36,7 @@ public class TaskJob {
     @Column(name = "task_Status", length = 36, nullable = false)
     private String taskStatus;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "Task")
     private JobLogic jobTask;
 

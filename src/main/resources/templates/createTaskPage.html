@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+    <html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        .error-message {
+            font-size:90%;
+            font-style:italic;
+            color:red;
+        }
+    </style>
+</head>
+<body>
+<!-- Include _menu.html -->
+<th:block th:include="/_menu"></th:block>
+
+<h2>Create Task Page</h2>
+<!--<h3>Welcome :-->
+<!--    <span th:utext="${#request.userPrincipal.name}"></span>-->
+<!--</h3>-->
+<b>This is protected page!</b>
+
+
+<form th:object="${newtask}" method="POST">
+    <table border="0">
+        <tr>
+            <td>Job Id</td>
+            <td><input  th:field="*{jobId}" /></td>
+            <td>
+                  <span class="error-message"
+                        th:if="${#fields.hasErrors('jobId')}" th:errors="*{jobId}">..</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Task Name</td>
+            <td><input  th:field="*{taskName}" /></td>
+            <td>
+                  <span class="error-message"
+                        th:if="${#fields.hasErrors('taskName')}" th:errors="*{taskName}">..</span>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Submit" /></td>
+            <td></td>
+        </tr>
+    </table>
+
+    <div th:if="not ${#lists.isEmpty(showAllTask)}" >
+        <table border=1 cellpadding=10 cellspacing=0>
+            <tr>
+                <th >TaskId</th>
+                <th >TaskName</th>
+                <th >TaskValue</th>
+                <th >TaskChecker</th>
+                <th >TaskWorker</th>
+                <th >TaskStatus</th>
+            </tr>
+            <tr th:each="task : ${showAllTask}">
+                <td th:text="${task.getTaskId()}">TaskId</td>
+                <td th:text="${task.getTaskName()}">TaskName</td>
+                <td th:text="${task.getTaskValue()}">TaskValue</td>
+                <td th:text="${task.getTaskChecker()}">TaskChecker</td>
+                <td th:text="${task.getTaskWorker()}">TaskWorker</td>
+                <td th:text="${task.getTaskStatus()}">TaskStatus</td>
+            </tr>
+        </table>
+    </div>
+</form>
+
+<div class="error-message" th:utext="${Message}"></div>
+<div class="error-message" th:utext="${errorMessage}"></div>
+
+</body>
+</html>

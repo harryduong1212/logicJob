@@ -6,7 +6,6 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class JobForm {
     private Long jobId;
     private Long jobCheckerId;
@@ -15,6 +14,7 @@ public class JobForm {
     private String jobWorker;
     private String jobName;
     private String jobStatus;
+    private boolean jobFlow;
     private int jobValue;
 
 }

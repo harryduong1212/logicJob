@@ -1,13 +1,11 @@
 package com.demo.LogicJob.Controller;
 
 import com.demo.LogicJob.DAO.JobLogicRepository;
-import com.demo.LogicJob.Entity.AppUser;
 import com.demo.LogicJob.Entity.JobLogic;
-import com.demo.LogicJob.FormDTO.AppUserForm;
 import com.demo.LogicJob.FormDTO.JobForm;
 import com.demo.LogicJob.Service.JobLogicService;
 import com.demo.LogicJob.Utils.WebUtils;
-import com.demo.LogicJob.Validator.AssignFormValidator;
+import com.demo.LogicJob.Validator.JobFormValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +30,7 @@ public class JobController {
     private JobLogicService jobLogicService;
 
     @Autowired
-    private AssignFormValidator assignFormValidator;
+    private JobFormValidator jobFormValidator;
 
     @InitBinder
     protected void initBinder(WebDataBinder dataBinder) {
@@ -45,7 +43,7 @@ public class JobController {
         System.out.println("Target=" + target);
 
         if (target.getClass() == JobForm.class) {
-            dataBinder.setValidator(assignFormValidator);
+            dataBinder.setValidator(jobFormValidator);
         }
         // ...
     }
@@ -76,11 +74,18 @@ public class JobController {
     }
 
     @RequestMapping(value = "/admin", method = RequestMethod.POST)
-    public String createJob(Model model,
-                            @ModelAttribute("newjob") JobForm jobForm) {
+    public String assignJob(Model model,
+                            @ModelAttribute("newjob") @Validated JobForm jobForm,
+                            BindingResult result) {
         try {
+            // Validation error.
+            if (result.hasErrors()) {
+                return "adminPage";
+            }
+
             if(jobForm.getJobName() != null && jobForm.getJobName() != "") {
-                jobLogicService.createNewJob(jobForm.getJobName());
+                jobLogicService.createNewJob(jobForm.getJobName(), jobForm.isJobFlow(),
+                        jobForm.getJobWorker(), jobForm.getJobChecker());
                 model.addAttribute("Message", "Create job successfully");
                 model.addAttribute("ShowAllJob", jobLogicRepository.findAllByOrderByJobIdAsc());
             }
@@ -93,47 +98,5 @@ public class JobController {
         return "adminPage";
     }
 
-    @RequestMapping(value = "/assign", method = RequestMethod.GET)
-    public String assignJobPage(Model model, Principal principal) {
 
-        // After user login successfully.
-//        String userName = principal.getName();
-//        System.out.println("User name: " + userName);
-//        UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
-//        String userInfo = WebUtils.toString(loginedUser);
-//        model.addAttribute("userInfo", userInfo);
-        model.addAttribute("newjob", new JobForm());
-
-        List<JobLogic> jobList = new ArrayList<>();
-        jobList = jobLogicRepository.findAllByOrderByJobIdAsc();
-        try {
-            model.addAttribute("message", "Job List");
-            model.addAttribute("joblist", jobList);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        return "assignJobPage";
-    }
-
-    @RequestMapping(value = "/assign", method = RequestMethod.POST)
-    public String assignJob(Model model,
-                            @ModelAttribute("newjob") @Validated JobForm jobForm,
-                            BindingResult result) {
-        // Validation error.
-        if (result.hasErrors()) {
-            return "assignJobPage";
-        }
-
-        try {
-            String str = jobLogicService.assignUserJob(jobForm.getJobWorker(), jobForm.getJobChecker(), jobForm.getJobId());
-            model.addAttribute("Message", str);
-        } catch (Exception ex) {
-            model.addAttribute("errorMessage", "Error " + ex.getMessage());
-            ex.printStackTrace();
-            return "assignJobPage";
-        }
-
-        return "assignJobPage";
-    }
 }

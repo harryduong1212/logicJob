@@ -34,8 +34,8 @@ public class JobLogic {
     @Column(name = "job_Checker", length = 36, nullable = true)
     private Long jobChecker;
 
-    @Column(name = "job_Flow", length = 36, nullable = false)
-    private Long jobFlow;
+    @Column(name = "job_Flow", length = 1, nullable = false)
+    private boolean jobFlow;
 
     @Column(name = "job_Status", length = 36, nullable = false)
     private String jobStatus;

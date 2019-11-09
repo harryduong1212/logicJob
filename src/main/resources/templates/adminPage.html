@@ -33,23 +33,62 @@
             <th >JobChecker</th>
             <th >JobWorker</th>
             <th >JobValue</th>
+            <th >JobFlow</th>
             <th >JobStatus</th>
         </tr>
         <tr th:each="job : ${joblist}">
                 <td th:text="${job.getJobId()}">JobId</td>
                 <td th:text="${job.getJobName()}">JobName</td>
-                <td th:text="${job.getJobWorker()}"></td>
                 <td th:text="${job.getJobChecker()}"></td>
+                <td th:text="${job.getJobWorker()}"></td>
                 <td th:text="${job.getJobValue()}">JobValue</td>
+                <td th:text="${job.isJobFlow()}">JobFlow</td>
                 <td th:text="${job.getJobStatus()}">JobStatus</td>
         </tr>
     </table>
 
 </div>
 
-<form th:object="${newjob}" method="POST" id="createJobForm">
-    <label for="createjob"></label><input name="createjob" id="createjob" th:field="*{jobName}" >
-    <input type="submit" value="Create new job" />
+<form th:object="${newjob}" method="POST">
+    <table border="0">
+        <tr>
+            <td>Job Flow</td>
+            <td><input  th:field="*{jobFlow}" /></td>
+            <td>
+                  <span class="error-message"
+                        th:if="${#fields.hasErrors('jobFlow')}" th:errors="*{jobFlow}">..</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Job Name</td>
+            <td><input  th:field="*{jobName}" /></td>
+            <td>
+                  <span class="error-message"
+                        th:if="${#fields.hasErrors('jobName')}" th:errors="*{jobName}">..</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Job Worker</td>
+            <td><input th:field="*{jobWorker}" /></td>
+            <td>
+                  <span class="error-message"
+                        th:if="${#fields.hasErrors('jobWorker')}" th:errors="*{jobWorker}">..</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Job Checker</td>
+            <td><input th:field="*{jobChecker}" /></td>
+            <td>
+                  <span class="error-message"
+                        th:if="${#fields.hasErrors('jobChecker')}" th:errors="*{jobChecker}">..</span>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Submit" /></td>
+            <td></td>
+        </tr>
+    </table>
     <div th:if="not ${#lists.isEmpty(ShowAllJob)}" >
         <table border=1 cellpadding=10 cellspacing=0>
             <tr>
@@ -58,6 +97,7 @@
                 <th >JobChecker</th>
                 <th >JobWorker</th>
                 <th >JobValue</th>
+                <th >JobFlow</th>
                 <th >JobStatus</th>
             </tr>
             <tr th:each="job : ${ShowAllJob}">
@@ -66,6 +106,7 @@
                 <td th:text="${job.getJobWorker()}">JobWorker</td>
                 <td th:text="${job.getJobChecker()}">JobChecker</td>
                 <td th:text="${job.getJobValue()}">JobValue</td>
+                <td th:text="${job.isJobFlow()}">JobFlow</td>
                 <td th:text="${job.getJobStatus()}">JobStatus</td>
             </tr>
         </table>

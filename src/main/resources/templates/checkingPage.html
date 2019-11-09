@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        .error-message {
+            font-size:90%;
+            font-style:italic;
+            color:red;
+        }
+    </style>
+</head>
+<body>
+<!-- Include _menu.html -->
+<th:block th:include="/_menu"></th:block>
+
+<h2>Working Page</h2>
+<!--<h3>Welcome :-->
+<!--    <span th:utext="${#request.userPrincipal.name}"></span>-->
+<!--</h3>-->
+<b>This is protected page!
+
+    <div th:if="not ${#lists.isEmpty(tasklist)}">
+
+        <table border=1 cellpadding=10 cellspacing=0>
+            <tr>
+                <th >TaskId</th>
+                <th >TaskName</th>
+                <th >TaskWorker</th>
+                <th >TaskChecker</th>
+                <th >TaskValue</th>
+                <th >TaskStatus</th>
+                <th >JobId</th>
+            </tr>
+            <tr th:each="task : ${tasklist}">
+                <td th:text="${task.getTaskId()}">TaskId</td>
+                <td th:text="${task.getTaskName()}">TaskName</td>
+                <td th:text="${task.getTaskWorker()}">TaskWorker</td>
+                <td th:text="${task.getTaskChecker()}">TaskChecker</td>
+                <td th:text="${task.getTaskValue()}">TaskValue</td>
+                <td th:text="${task.getTaskStatus()}">TaskStatus</td>
+                <td th:text="${task.getJobTask().getJobId()}">JobId</td>
+            </tr>
+        </table>
+
+    </div>
+
+    <form th:object="${taskform}" method="POST">
+        <table border="0">
+            <tr>
+                <td>Job Id</td>
+                <td><input  th:field="*{jobId}" /></td>
+                <td>
+                  <span class="error-message"
+                        th:if="${#fields.hasErrors('jobId')}" th:errors="*{jobId}">..</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Task Id</td>
+                <td><input  th:field="*{taskId}" /></td>
+                <td>
+                  <span class="error-message"
+                        th:if="${#fields.hasErrors('taskId')}" th:errors="*{taskId}">..</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Task Value</td>
+                <td><input  th:field="*{taskValue}" /></td>
+                <td>
+                  <span class="error-message"
+                        th:if="${#fields.hasErrors('taskValue')}" th:errors="*{taskValue}">..</span>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><input type="submit" value="Submit" /></td>
+                <td></td>
+            </tr>
+        </table>
+
+        <div th:if="not ${#lists.isEmpty(tasklist2)}" >
+            <table border=1 cellpadding=10 cellspacing=0>
+                <tr>
+                    <th >TaskId</th>
+                    <th >TaskName</th>
+                    <th >TaskWorker</th>
+                    <th >TaskChecker</th>
+                    <th >TaskValue</th>
+                    <th >TaskStatus</th>
+                    <th >JobId</th>
+                </tr>
+                <tr th:each="task : ${tasklist2}">
+                    <td th:text="${task.getTaskId()}">TaskId</td>
+                    <td th:text="${task.getTaskName()}">TaskName</td>
+                    <td th:text="${task.getTaskWorker()}">TaskWorker</td>
+                    <td th:text="${task.getTaskChecker()}">TaskChecker</td>
+                    <td th:text="${task.getTaskValue()}">TaskValue</td>
+                    <td th:text="${task.getTaskStatus()}">TaskStatus</td>
+                    <td th:text="${task.getJobTask().getJobId()}">JobId</td>
+                </tr>
+            </table>
+        </div>
+    </form>
+
+    <div class="error-message" th:utext="${Message}"></div>
+    <div class="error-message" th:utext="${errorMessage}"></div>
+
+</body>
+</html>
