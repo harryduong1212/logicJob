@@ -6,6 +6,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class TaskForm {
     private Long taskId;
     private Long JobId;
@@ -14,4 +15,8 @@ public class TaskForm {
     private Long taskWorker;
     private Long taskChecker;
     private String taskStatus;
+
+    public TaskForm(Long jobId) {
+        this.JobId = jobId;
+    }
 }

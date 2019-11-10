@@ -46,14 +46,7 @@
 
 <form th:object="${taskform}" method="POST">
     <table border="0">
-        <tr>
-            <td>Job Id</td>
-            <td><input  th:field="*{jobId}" /></td>
-            <td>
-                  <span class="error-message"
-                        th:if="${#fields.hasErrors('jobId')}" th:errors="*{jobId}">..</span>
-            </td>
-        </tr>
+        <input  th:field="${taskform.jobId}" th:value="1" hidden/>
         <tr>
             <td>Task Id</td>
             <td><input  th:field="*{taskId}" /></td>

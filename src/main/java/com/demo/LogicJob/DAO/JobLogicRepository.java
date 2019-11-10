@@ -14,4 +14,6 @@ public interface JobLogicRepository extends JpaRepository<JobLogic, Long> {
     List<JobLogic> findAllByOrderByJobIdAsc();
 
     JobLogic findJobLogicByJobName(String jobName);
+
+
 }

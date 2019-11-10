@@ -103,8 +103,8 @@
             <tr th:each="job : ${ShowAllJob}">
                 <td th:text="${job.getJobId()}">JobId</td>
                 <td th:text="${job.getJobName()}">JobName</td>
-                <td th:text="${job.getJobWorker()}">JobWorker</td>
-                <td th:text="${job.getJobChecker()}">JobChecker</td>
+                <td th:text="${job.getJobChecker()}">JobWorker</td>
+                <td th:text="${job.getJobWorker()}">JobChecker</td>
                 <td th:text="${job.getJobValue()}">JobValue</td>
                 <td th:text="${job.isJobFlow()}">JobFlow</td>
                 <td th:text="${job.getJobStatus()}">JobStatus</td>

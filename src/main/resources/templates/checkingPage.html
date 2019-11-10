@@ -13,7 +13,7 @@
 <!-- Include _menu.html -->
 <th:block th:include="/_menu"></th:block>
 
-<h2>Working Page</h2>
+<h2>Checking Page</h2>
 <!--<h3>Welcome :-->
 <!--    <span th:utext="${#request.userPrincipal.name}"></span>-->
 <!--</h3>-->
@@ -46,14 +46,7 @@
 
     <form th:object="${taskform}" method="POST">
         <table border="0">
-            <tr>
-                <td>Job Id</td>
-                <td><input  th:field="*{jobId}" /></td>
-                <td>
-                  <span class="error-message"
-                        th:if="${#fields.hasErrors('jobId')}" th:errors="*{jobId}">..</span>
-                </td>
-            </tr>
+            <input  th:field="${taskform.jobId}" hidden/>
             <tr>
                 <td>Task Id</td>
                 <td><input  th:field="*{taskId}" /></td>
@@ -63,16 +56,9 @@
                 </td>
             </tr>
             <tr>
-                <td>Task Value</td>
-                <td><input  th:field="*{taskValue}" /></td>
-                <td>
-                  <span class="error-message"
-                        th:if="${#fields.hasErrors('taskValue')}" th:errors="*{taskValue}">..</span>
-                </td>
-            </tr>
-            <tr>
                 <td></td>
-                <td><input type="submit" value="Submit" /></td>
+                <td><input type="submit" name="action" value="Accept" /></td>
+                <td><input type="submit" name="action" value="Reject" /></td>
                 <td></td>
             </tr>
         </table>

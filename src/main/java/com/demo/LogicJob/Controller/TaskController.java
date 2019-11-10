@@ -7,6 +7,7 @@ import com.demo.LogicJob.Entity.JobLogic;
 import com.demo.LogicJob.Entity.TaskJob;
 import com.demo.LogicJob.FormDTO.TaskForm;
 import com.demo.LogicJob.Service.JobLogicService;
+import com.demo.LogicJob.Service.UserMapperImpl;
 import com.demo.LogicJob.Service.UserSearchSpecification;
 import com.demo.LogicJob.Utils.WebUtils;
 import com.demo.LogicJob.Validator.TaskFormValidation;
@@ -18,12 +19,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
+
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -56,6 +54,8 @@ public class TaskController {
         if (target.getClass() == TaskForm.class) {
             dataBinder.setValidator(taskFormValidation);
         }
+
+
         // ...
     }
 
@@ -76,14 +76,15 @@ public class TaskController {
     @RequestMapping(value = "/createtask", method = RequestMethod.POST)
     public String createTask(Model model,
                             @ModelAttribute("newtask") @Validated TaskForm taskForm,
-                            BindingResult result) {
+                             BindingResult result,
+                             Principal principal) {
         // Validation error.
         if (result.hasErrors()) {
             return "createTaskPage";
         }
 
         try {
-            jobLogicService.createNewTask(taskForm.getJobId(), taskForm.getTaskName());
+            jobLogicService.createNewTask(taskForm.getJobId(), taskForm.getTaskName(), principal);
             model.addAttribute("showAllTask", taskJobRepository.findAllByJobTask(
                     jobLogicRepository.findJobLogicByJobId( taskForm.getJobId() )));
             model.addAttribute("Message", "Success");
@@ -104,29 +105,32 @@ public class TaskController {
         System.out.println("User name: " + userName);
         UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
         String userInfo = WebUtils.toString(loginedUser);
-        List<TaskJob> taskJobs = taskJobRepository.findAllByTaskWorkerOrderByJobTask(
-                userRepository.findAppUserByUserName(userName).getUserId());
+        List<TaskJob> taskJobs = taskJobRepository.findAllByTaskWorkerAndStatusOrderByJobTask(
+                userRepository.findAppUserByUserName(userName).getUserId(), "Pending");
+        taskJobs.addAll(taskJobRepository.findAllByTaskWorkerAndStatusOrderByJobTask(
+                userRepository.findAppUserByUserName(userName).getUserId(), "Remanded"));
         model.addAttribute("userInfo", userInfo);
-        model.addAttribute("taskform", new TaskForm());
+        model.addAttribute("taskform", new TaskForm(1L));
         model.addAttribute("tasklist", taskJobs);
         return "workingPage";
     }
 
     @RequestMapping(value = "/working", method = RequestMethod.POST)
     public String workingDone(Model model,
-                             @ModelAttribute("taskform") @Validated TaskForm taskForm, Principal principal,
-                             BindingResult result) {
+                             @ModelAttribute("taskform") @Validated TaskForm taskForm,
+                              BindingResult result,
+                              Principal principal) {
         // Validation error.
         if (result.hasErrors()) {
             return "workingPage";
         }
 
         try {
-            jobLogicService.userWorking(taskForm.getJobId(), taskForm.getTaskId(), taskForm.getTaskValue());
-            model.addAttribute("Message", "Success");
+            String str = jobLogicService.userWorking(taskForm.getTaskId(), taskForm.getTaskValue(), principal);
+            model.addAttribute("Message", str);
             String userName = principal.getName();
-            List<TaskJob> taskJobs = taskJobRepository.findAllByTaskWorkerOrderByJobTask(
-                    userRepository.findAppUserByUserName(userName).getUserId());
+            List<TaskJob> taskJobs = taskJobRepository.findAllByTaskWorkerAndStatusOrderByJobTask(
+                    userRepository.findAppUserByUserName(userName).getUserId(), "Confirmed");
             model.addAttribute("tasklist2", taskJobs);
         } catch (Exception ex) {
             model.addAttribute("errorMessage", "Error " + ex.getMessage());
@@ -145,37 +149,47 @@ public class TaskController {
         System.out.println("User name: " + userName);
         UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
         String userInfo = WebUtils.toString(loginedUser);
-        List<TaskJob> taskJobs = taskJobRepository.findAllByTaskWorkerOrderByJobTask(
-                userRepository.findAppUserByUserName(userName).getUserId());
+        List<TaskJob> taskJobs = taskJobRepository.findAllByTaskCheckerAndStatusOrderByJobTask(
+                userRepository.findAppUserByUserName(userName).getUserId(), "Confirmed");
+
         model.addAttribute("userInfo", userInfo);
-        model.addAttribute("taskform", new TaskForm());
+        model.addAttribute("taskform", new TaskForm(1L));
         model.addAttribute("tasklist", taskJobs);
-        return "workingPage";
+        return "checkingPage";
     }
 
     @RequestMapping(value = "/checking", method = RequestMethod.POST)
     public String checkingDone(Model model,
-                              @ModelAttribute("taskform") @Validated TaskForm taskForm, Principal principal,
-                              BindingResult result) {
+                              @ModelAttribute("taskform") @Validated TaskForm taskForm,
+                               @RequestParam(value="action", required=true) String action,
+                               BindingResult result,
+                               Principal principal) {
         // Validation error.
         if (result.hasErrors()) {
-            return "workingPage";
+            return "checkingPage";
         }
 
         try {
-            jobLogicService.userWorking(taskForm.getJobId(), taskForm.getTaskId(), taskForm.getTaskValue());
-            model.addAttribute("Message", "Success");
+            String str;
+            if (action.equals("Accept")) {
+                str = jobLogicService.userChecking(taskForm.getTaskId(), true, principal);
+            } else {
+                str = jobLogicService.userChecking(taskForm.getTaskId(), false, principal);
+            }
+            model.addAttribute("Message", str);
             String userName = principal.getName();
-            List<TaskJob> taskJobs = taskJobRepository.findAllByTaskWorkerOrderByJobTask(
-                    userRepository.findAppUserByUserName(userName).getUserId());
+            List<TaskJob> taskJobs = taskJobRepository.findAllByTaskCheckerAndStatusOrderByJobTask(
+                    userRepository.findAppUserByUserName(userName).getUserId(), "Checked");
+            taskJobs.addAll(taskJobRepository.findAllByTaskCheckerAndStatusOrderByJobTask(
+                    userRepository.findAppUserByUserName(userName).getUserId(), "Remanded"));
             model.addAttribute("tasklist2", taskJobs);
         } catch (Exception ex) {
             model.addAttribute("errorMessage", "Error " + ex.getMessage());
             ex.printStackTrace();
-            return "workingPage";
+            return "checkingPage";
         }
 
-        return "workingPage";
+        return "checkingPage";
     }
 
 }

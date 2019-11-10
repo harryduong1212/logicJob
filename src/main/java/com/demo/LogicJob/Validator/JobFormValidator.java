@@ -37,13 +37,13 @@ public class JobFormValidator implements Validator {
 
         if(jobForm.isJobFlow()) {
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "jobChecker", "",
-                    "Please enter a checker or worker");
+                    "Please enter checker and worker");
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "jobWorker", "",
-                    "Please enter a checker or worker");
+                    "Please enter checker and worker");
             if(jobForm.getJobChecker().compareTo(jobForm.getJobWorker()) == 0) {
                 errors.rejectValue("jobChecker", "Worker and checker cannot be duplicated, object: ");
             }
-            if(userRepository.findAppUserByUserName(jobForm.getJobChecker()) == null && jobForm.getJobChecker().equals("")) {
+            if(userRepository.findAppUserByUserName(jobForm.getJobChecker()) == null && !jobForm.getJobChecker().equals("")) {
                 errors.rejectValue("jobChecker", "Checker you provided does not exist, object: ");
             }
         } else {
@@ -55,7 +55,7 @@ public class JobFormValidator implements Validator {
             }
         }
 
-        if(userRepository.findAppUserByUserName(jobForm.getJobWorker()) == null && jobForm.getJobWorker().equals("")) {
+        if(userRepository.findAppUserByUserName(jobForm.getJobWorker()) == null && !jobForm.getJobWorker().equals("")) {
             errors.rejectValue("jobWorker", "Worker you provided does not exist, object: ");
         }
 

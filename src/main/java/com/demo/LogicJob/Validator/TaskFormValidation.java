@@ -48,7 +48,7 @@ public class TaskFormValidation implements Validator {
 
         JobLogic jobLogic = jobLogicRepository.findJobLogicByJobId(taskForm.getJobId());
 
-        if(jobLogic == null) {
+        if(jobLogic == null && taskForm.getJobId() != null) {
             errors.rejectValue("jobId", "Please enter a valid jobId, object: ");
         }
     }
