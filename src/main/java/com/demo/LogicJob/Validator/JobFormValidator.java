@@ -29,6 +29,8 @@ public class JobFormValidator implements Validator {
     public void validate(Object o, Errors errors) {
         JobForm jobForm = (JobForm) o;
 
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "jobFlow", "",
+                "JobFlow is required, only true/false (1/0) accepted");
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "jobName", "",
                 "JobName is required");
         if(jobLogicRepository.findJobLogicByJobName(jobForm.getJobName()) != null) {
@@ -40,7 +42,7 @@ public class JobFormValidator implements Validator {
                     "Please enter checker and worker");
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "jobWorker", "",
                     "Please enter checker and worker");
-            if(jobForm.getJobChecker().compareTo(jobForm.getJobWorker()) == 0) {
+            if(jobForm.getJobChecker().compareTo(jobForm.getJobWorker()) == 0 && !jobForm.getJobChecker().equals("")) {
                 errors.rejectValue("jobChecker", "Worker and checker cannot be duplicated, object: ");
             }
             if(userRepository.findAppUserByUserName(jobForm.getJobChecker()) == null && !jobForm.getJobChecker().equals("")) {

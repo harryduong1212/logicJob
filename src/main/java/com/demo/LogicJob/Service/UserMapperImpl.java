@@ -97,12 +97,19 @@ public class UserMapperImpl implements UserMapper {
         if(taskForm == null) { return null; }
 
         TaskJob.TaskJobBuilder taskJob = TaskJob.builder();
+        if(taskForm.getJobId() != null) {
+            JobLogic jobLogic = jobLogicRepository.findJobLogicByJobId(taskForm.getJobId());
+            taskForm.setTaskChecker(jobLogic.getJobChecker());
+            taskForm.setTaskWorker(jobLogic.getJobWorker());
+            taskJob.jobTask(jobLogic);
+        }
         if(taskForm.getTaskChecker() != null ) {
             taskJob.taskChecker(userRepository.findAppUserByUserId(taskForm.getTaskChecker()).getUserId());
         }
         if(taskForm.getTaskWorker() != null ) {
             taskJob.taskWorker(userRepository.findAppUserByUserId(taskForm.getTaskWorker()).getUserId());
         }
+
         if(taskForm.getTaskId() != null) {
             taskJob.taskId(taskForm.getTaskId());
         }

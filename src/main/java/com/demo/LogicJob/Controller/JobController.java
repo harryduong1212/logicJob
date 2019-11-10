@@ -83,9 +83,10 @@ public class JobController {
                 return "adminPage";
             }
             if(jobForm.getJobName() != null && !jobForm.getJobName().equals("")) {
-                String str = jobLogicService.createNewJob(jobForm.getJobName(), jobForm.isJobFlow(),
-                        jobForm.getJobWorker(), jobForm.getJobChecker(), principal);
-                model.addAttribute("Message", "success");
+//                String str = jobLogicService.createNewJob(jobForm.getJobName(), jobForm.isJobFlow(),
+//                        jobForm.getJobWorker(), jobForm.getJobChecker(), principal);
+                String str = jobLogicService.createNewJob(jobForm, principal);
+                model.addAttribute("Message", str);
                 model.addAttribute("ShowAllJob", jobLogicRepository.findAllByOrderByJobIdAsc());
             }
         } catch (Exception ex) {

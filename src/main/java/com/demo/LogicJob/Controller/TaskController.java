@@ -84,10 +84,10 @@ public class TaskController {
         }
 
         try {
-            jobLogicService.createNewTask(taskForm.getJobId(), taskForm.getTaskName(), principal);
+            String str = jobLogicService.createNewTask(taskForm, principal);
             model.addAttribute("showAllTask", taskJobRepository.findAllByJobTask(
                     jobLogicRepository.findJobLogicByJobId( taskForm.getJobId() )));
-            model.addAttribute("Message", "Success");
+            model.addAttribute("Message", str);
         } catch (Exception ex) {
             model.addAttribute("errorMessage", "Error " + ex.getMessage());
             ex.printStackTrace();
@@ -126,11 +126,13 @@ public class TaskController {
         }
 
         try {
-            String str = jobLogicService.userWorking(taskForm.getTaskId(), taskForm.getTaskValue(), principal);
+            String str = jobLogicService.userWorking(taskForm, principal);
             model.addAttribute("Message", str);
             String userName = principal.getName();
             List<TaskJob> taskJobs = taskJobRepository.findAllByTaskWorkerAndStatusOrderByJobTask(
                     userRepository.findAppUserByUserName(userName).getUserId(), "Confirmed");
+            taskJobs.addAll(taskJobRepository.findAllByTaskWorkerAndStatusOrderByJobTask(
+                    userRepository.findAppUserByUserName(userName).getUserId(), "Checked"));
             model.addAttribute("tasklist2", taskJobs);
         } catch (Exception ex) {
             model.addAttribute("errorMessage", "Error " + ex.getMessage());
@@ -172,9 +174,9 @@ public class TaskController {
         try {
             String str;
             if (action.equals("Accept")) {
-                str = jobLogicService.userChecking(taskForm.getTaskId(), true, principal);
+                str = jobLogicService.userChecking(taskForm, true, principal);
             } else {
-                str = jobLogicService.userChecking(taskForm.getTaskId(), false, principal);
+                str = jobLogicService.userChecking(taskForm, false, principal);
             }
             model.addAttribute("Message", str);
             String userName = principal.getName();
