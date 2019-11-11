@@ -28,41 +28,55 @@ public class FormValidator implements Validator {
     public void validate(Object o, Errors errors) {
         AppUserForm form = (AppUserForm) o;
 
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "email", "", "Email is required");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "userName", "", "User name is required");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "firstName", "", "First name is required");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lastName", "", "Last name is required");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "", "Password is required");
-        if (errors.hasErrors()) {
-            return;
-        }
-
-        if (!emailValidator.isValid(form.getEmail())) {
-
-            errors.rejectValue("email", "", "Email is not valid");
-            return;
-        }
-
-        AppUser userAccount = userRepository.findAppUserByUserName( form.getUserName());
-        if (userAccount != null) {
-            if (form.getUserId() == null) {
-                errors.rejectValue("userName", "", "User name is not available");
+        if(form.getUserId() == null && form.getRole() == null) {
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "email", "", "Email is required");
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "userName", "", "User name is required");
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "firstName", "", "First name is required");
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lastName", "", "Last name is required");
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "", "Password is required");
+            if (errors.hasErrors()) {
                 return;
-            } else if (!form.getUserId().equals( userAccount.getUserId() )) {
-                errors.rejectValue("userName", "", "User name is not available");
+            }
+
+            if (!emailValidator.isValid(form.getEmail())) {
+
+                errors.rejectValue("email", "", "Email is not valid");
                 return;
+            }
+
+            AppUser userAccount = userRepository.findAppUserByUserName( form.getUserName());
+            if (userAccount != null) {
+                if (form.getUserId() == null) {
+                    errors.rejectValue("userName", "", "User name is not available");
+                    return;
+                } else if (!form.getUserId().equals( userAccount.getUserId() )) {
+                    errors.rejectValue("userName", "", "User name is not available");
+                    return;
+                }
+            }
+
+            userAccount = userRepository.findAppUserByEmail(form.getEmail());
+            if (userAccount != null) {
+                if (form.getUserId() == null) {
+                    errors.rejectValue("email", "", "Email is not available");
+                    return;
+                } else if (!form.getUserId().equals( userAccount.getUserId() )) {
+                    errors.rejectValue("email", "", "Email is not available");
+                    return;
+                }
+            }
+        } else {
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "userId", "",
+                    "UserId is required");
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "role", "",
+                    "Role is required");
+            if(!form.getRole().equals("ROLE_ADMIN") && !form.getRole().equals("ROLE_USER") && !form.getRole().equals("ROLE_MANAGER") && form.getRole() != null) {
+                errors.rejectValue("role", "", "Please enter a valid role");
+            }
+            if(userRepository.findAppUserByUserId(form.getUserId()) == null && form.getUserId() != null) {
+                errors.rejectValue("userId", "", "Please enter a valid userId");
             }
         }
 
-        userAccount = userRepository.findAppUserByEmail(form.getEmail());
-        if (userAccount != null) {
-            if (form.getUserId() == null) {
-                errors.rejectValue("email", "", "Email is not available");
-                return;
-            } else if (!form.getUserId().equals( userAccount.getUserId() )) {
-                errors.rejectValue("email", "", "Email is not available");
-                return;
-            }
-        }
     }
 }

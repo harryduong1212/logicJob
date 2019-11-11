@@ -1,5 +1,6 @@
 package com.demo.LogicJob.Service;
 
+import com.demo.LogicJob.DAO.RoleRepository;
 import com.demo.LogicJob.DAO.TokenRepository;
 import com.demo.LogicJob.DAO.UserRepository;
 import com.demo.LogicJob.Entity.AppRole;
@@ -59,6 +60,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private UserMapperImpl userMapperImpl;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
 
@@ -89,11 +93,31 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new SocialUserDetailsImpl(appUser, roleNames);
     }
 
-    public void createRoleFor(AppUser appUser, String roleNames) {
+    public void createRoleFor(AppUser appUser) {
         //
-        AppRole appRole = new AppRole(2L, "ROLE_ADMIN");
+        AppRole appRole = new AppRole(1L, "ROLE_USER");
         appUser.setRoles(appRole);
         userRepository.save(appUser);
+    }
+
+    public String createRoleForUser(AppUserForm appUserForm) {
+        AppUser appUser = userRepository.findAppUserByUserName(appUserForm.getUserName());
+        AppRole appRole = roleRepository.findAppRoleByRoleName(appUserForm.getRole());
+        appUser.setRoles(appRole);
+        userRepository.save(appUser);
+        return "Success";
+    }
+
+    public String changeUserPassword(AppUserForm appUserForm) {
+        AppUser appUser = userRepository.findAppUserByUserName(appUserForm.getUserName());
+        if(appUserForm.getPassword() != null && appUserForm.getPassword().length() >= 5) {
+            appUser.setEncrytedPassword(EncrytedPasswordUtils.encrytePassword(appUserForm.getPassword()));
+            userRepository.save(appUser);
+            return "Change password success";
+        } else {
+            return "Please enter a valid password";
+        }
+
     }
 
     // Auto create App User Account.
@@ -129,7 +153,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.entityManager.persist(appUser);
 
         // Create default Role
-        this.createRoleFor(appUser, "");
+        this.createRoleFor(appUser);
 
         Locale locale = Locale.ENGLISH;
         eventPublisher.publishEvent(new OnRegistrationSuccessEvent(appUser, locale, "", randomPassword));
@@ -151,7 +175,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         appUser.setEncrytedPassword(encrytedPassword);
         this.entityManager.persist(appUser);
         this.entityManager.flush();
-        this.createRoleFor(appUser, roleNames);
+        this.createRoleFor(appUser);
         LOGGER.info("User " + appUser.getUserName() + " has been created!");
 
 

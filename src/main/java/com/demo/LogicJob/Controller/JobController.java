@@ -52,32 +52,35 @@ public class JobController {
     }
 
 
-    @RequestMapping(value = "/admin", method = RequestMethod.GET)
+    @RequestMapping(value = "/createjob", method = RequestMethod.GET)
     public String adminPage(Model model, Principal principal) {
 
-        // After user login successfully.
-        String userName = principal.getName();
-        System.out.println("User name: " + userName);
-        UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
-        String userInfo = WebUtils.toString(loginedUser);
-        model.addAttribute("userInfo", userInfo);
-        model.addAttribute("newjob", new JobForm());
-        List<JobLogic> jobList = jobLogicRepository.findAllByOrderByJobIdAsc();
         try {
-            model.addAttribute("message", "Job List");
-            model.addAttribute("joblist", jobList);
+            // After user login successfully.
+            String userName = principal.getName();
+            System.out.println("User name: " + userName);
+            UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
+            String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
+            List<JobLogic> jobList = jobLogicRepository.findAllByOrderByJobIdAsc();
+
+            model.addAttribute("ShowAllJob", jobList);
+            model.addAttribute("userrole", userRole);
+            model.addAttribute("newjob", new JobForm());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return "adminPage";
     }
 
-    @RequestMapping(value = "/admin", method = RequestMethod.POST)
+    @RequestMapping(value = "/createjob", method = RequestMethod.POST)
     public String assignJob(Model model,
                             @ModelAttribute("newjob") @Validated JobForm jobForm,
                             BindingResult result,
                             Principal principal) {
         try {
+            UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
+            String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
+            model.addAttribute("userrole", userRole);
             // Validation error.
             if (result.hasErrors()) {
                 return "adminPage";
@@ -86,6 +89,7 @@ public class JobController {
 //                String str = jobLogicService.createNewJob(jobForm.getJobName(), jobForm.isJobFlow(),
 //                        jobForm.getJobWorker(), jobForm.getJobChecker(), principal);
                 String str = jobLogicService.createNewJob(jobForm, principal);
+
                 model.addAttribute("Message", str);
                 model.addAttribute("ShowAllJob", jobLogicRepository.findAllByOrderByJobIdAsc());
             }

@@ -1,9 +1,12 @@
 package com.demo.LogicJob.Controller;
 
 import com.demo.LogicJob.Config.CronSchedule;
+import com.demo.LogicJob.DAO.UserRepository;
 import com.demo.LogicJob.Entity.AppRole;
 import com.demo.LogicJob.Entity.AppUser;
 import com.demo.LogicJob.Entity.VerificationToken;
+import com.demo.LogicJob.FormDTO.TaskForm;
+import com.demo.LogicJob.Service.UserMapperImpl;
 import com.demo.LogicJob.Utils.*;
 import com.demo.LogicJob.FormDTO.AppUserForm;
 import com.demo.LogicJob.Service.UserDetailsServiceImpl;
@@ -53,6 +56,12 @@ public class SecurityController {
     @Autowired
     private MessageSource messageSource;
 
+    @Autowired
+    private UserMapperImpl userMapperImpl;
+
+    @Autowired
+    private UserRepository userRepository;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityController.class);
 
     @InitBinder
@@ -71,13 +80,6 @@ public class SecurityController {
         // ...
     }
 
-    @RequestMapping(value = { "/", "/welcome" }, method = RequestMethod.GET)
-    public String welcomePage(Model model) {
-        model.addAttribute("title", "Welcome");
-        model.addAttribute("message", "This is welcome page!");
-        return "welcomePage";
-    }
-
     @RequestMapping(value = "/logoutSuccessful", method = RequestMethod.GET)
     public String logoutSuccessfulPage(Model model) {
         model.addAttribute("title", "Logout");
@@ -85,18 +87,35 @@ public class SecurityController {
     }
 
     @RequestMapping(value = "/userInfo", method = RequestMethod.GET)
-    public String userInfo(Model model, Principal principal) {
+    public String userInfoPage(Model model, Principal principal,
+                           @ModelAttribute("userinfo") AppUserForm appUserForm) {
 
         // After user login successfully.
         String userName = principal.getName();
-
         System.out.println("User Name: " + userName);
-
         UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
+        String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
+        appUserForm = userMapperImpl.toUserForm(userRepository.findAppUserByUserName(userName));
+        model.addAttribute("userInfo", appUserForm);
+        model.addAttribute("userrole", userRole);
+        return "userInfoPage";
+    }
 
-        String userInfo = WebUtils.toString(loginedUser);
-        model.addAttribute("userInfo", userInfo);
+    @RequestMapping(value = "/userInfo", method = RequestMethod.POST)
+    public String userInfo(Model model, Principal principal,
+                           @ModelAttribute("userinfo") AppUserForm appUserForm) {
 
+        // After user login successfully.
+        String userName = principal.getName();
+        System.out.println("User Name: " + userName);
+        appUserForm.setUserName(userName);
+        String str = userDetailsServiceImpl.changeUserPassword(appUserForm);
+        appUserForm = userMapperImpl.toUserForm(userRepository.findAppUserByUserName(userName));
+
+
+        model.addAttribute("message", str);
+        model.addAttribute("userInfo", appUserForm);
+        model.addAttribute("userrole", appUserForm.getRole());
         return "userInfoPage";
     }
 
@@ -119,21 +138,27 @@ public class SecurityController {
         return "403Page";
     }
 
-    @RequestMapping(value = { "/login" }, method = RequestMethod.GET)
-    public String login(Model model) {
-        return "loginPage";
+    @RequestMapping(value = { "/login", "/" }, method = RequestMethod.GET)
+    public String login(Model model, Principal principal) {
+        if(principal == null) {
+            return "loginPage";
+        };
+        return "userInfoPage";
     }
 
     // User login with social networking,
     // but does not allow the app to view basic information
     // application will redirect to page / signin.
     @RequestMapping(value = { "/signin" }, method = RequestMethod.GET)
-    public String signInPage(Model model) {
+    public String signInPage(Model model, Principal principal) {
         return "redirect:/login";
     }
 
     @RequestMapping(value = { "/signup" }, method = RequestMethod.GET)
-    public String signupPage(WebRequest request, Model model) {
+    public String signupPage(WebRequest request, Model model, Principal principal) {
+        if(principal != null) {
+            return "userInfoPage";
+        };
 
         ProviderSignInUtils providerSignInUtils //
                 = new ProviderSignInUtils(connectionFactoryLocator, connectionRepository);
@@ -146,7 +171,7 @@ public class SecurityController {
         if (connection != null) {
             //myForm = new AppUserForm(connection);
             AppUser registered = userDetailsServiceImpl.createAppUser(connection, request);
-            AppRole appRole = new AppRole(2L, "ROLE_ADMIN");
+            AppRole appRole = new AppRole(1L, "ROLE_USER");
             SecurityUtil.logInUser(registered, appRole.getRoleName());
             return "redirect:/userInfo";
         } else {
@@ -179,7 +204,7 @@ public class SecurityController {
         } catch (Exception ex) {
             ex.printStackTrace();
             model.addAttribute("errorMessage", "Error " + ex.getMessage());
-            return "signupPage";
+            return "signup";
         }
 
         // After registration is complete, automatic login.
@@ -209,7 +234,62 @@ public class SecurityController {
         model.addAttribute("message", message);
 
         userDetailsServiceImpl.enableRegisteredUser(appUser);
-        return "welcomePage";
+        return "loginPage";
+    }
+
+    @RequestMapping(value = "/setrole", method = RequestMethod.GET)
+    public String setRolePage(Model model, Principal principal) {
+
+        //After user login successfully.
+        String userName = principal.getName();
+        System.out.println("User name: " + userName);
+        UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
+        String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
+        model.addAttribute("userrole", userRole);
+        model.addAttribute("userform", new AppUserForm());
+        model.addAttribute("showAllUser", userRepository.findAll());
+
+        return "setRolePage";
+    }
+
+    @RequestMapping(value = "/setrole", method = RequestMethod.POST)
+    public String setRole(Model model,
+                             @ModelAttribute("userform") @Validated AppUserForm appUserForm,
+                             BindingResult result,
+                             Principal principal) {
+
+        try {
+            UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
+            String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
+            model.addAttribute("userrole", userRole);
+            // Validation error.
+            if (result.hasErrors()) {
+                return "setRolePage";
+            }
+            String str = userDetailsServiceImpl.createRoleForUser(appUserForm);
+            AppUser appUser = userRepository.findAppUserByUserName(appUserForm.getUserName());
+
+            model.addAttribute("showUser", appUser);
+            model.addAttribute("Message", str);
+        } catch (Exception ex) {
+            model.addAttribute("errorMessage", "Error " + ex.getMessage());
+            ex.printStackTrace();
+            return "setRolePage";
+        }
+
+        return "setRolePage";
+    }
+
+    @RequestMapping(value = "/privileges", method = RequestMethod.GET)
+    public String privilegePage(Model model, Principal principal) {
+        //After user login successfully.
+        String userName = principal.getName();
+        System.out.println("User name: " + userName);
+        UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
+        String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
+        model.addAttribute("userrole", userRole);
+
+        return "privilegePage";
     }
 
 }

@@ -19,4 +19,9 @@ public class TaskForm {
     public TaskForm(Long jobId) {
         this.JobId = jobId;
     }
+
+    public TaskForm(Long jobId, Long taskId) {
+        this.JobId = jobId;
+        this.taskId = taskId;
+    }
 }

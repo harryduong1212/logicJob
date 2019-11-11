@@ -34,15 +34,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.csrf().disable();
 
+//        http.authorizeRequests()
+//                .antMatchers("/css/**", "/images/**").permitAll();
+
         // Pages do not require login
         http.authorizeRequests().antMatchers("/", "/signup", "/login", "/logout").permitAll();
 
-        http.authorizeRequests().antMatchers("/userInfo","/working","/checking").access("hasAnyRole('ROLE_USER', 'ROLE_ADMIN', 'ROLE_MANAGER')");
+        http.authorizeRequests().antMatchers("/userInfo","/working","/checking", "/privileges").access("hasAnyRole('ROLE_USER', 'ROLE_ADMIN', 'ROLE_MANAGER')");
 
         http.authorizeRequests().antMatchers("/createtask").access("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')");
 
         // For ADMIN only.
-        http.authorizeRequests().antMatchers("/admin").access("hasRole('ROLE_ADMIN')");
+        http.authorizeRequests().antMatchers("/createjob", "/setrole").access("hasRole('ROLE_ADMIN')");
 
         // When the user has logged in as XX.
         // But access a page that requires role YY,
@@ -60,7 +63,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordParameter("password");
 
         // Logout Config
-        http.authorizeRequests().and().logout().logoutUrl("/logout").logoutSuccessUrl("/");
+        http.authorizeRequests().and().logout().logoutUrl("/logout").logoutSuccessUrl("/login");
 
         // Spring Social Config.
         http.apply(new SpringSocialConfigurer())

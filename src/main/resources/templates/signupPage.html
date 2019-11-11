@@ -1,8 +1,25 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <title>Login Page</title>
     <meta charset="UTF-8">
-    <title>Sign Up</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--===============================================================================================-->
+    <link rel="icon" type="image/png" th:href="@{/images/icons/favicon.ico}"/>
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" th:href="@{/fonts/font-awesome-4.7.0/css/font-awesome.min.css}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" th:href="@{/vendor/animate/animate.css}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" th:href="@{/vendor/css-hamburgers/hamburgers.min.css}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" th:href="@{/vendor/select2/select2.min.css}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" th:href="@{/css/util.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
+    <!--===============================================================================================-->
     <style>
         .error-message {
             font-size:90%;
@@ -12,62 +29,86 @@
     </style>
 </head>
 <body>
-<!-- Include _menu.html -->
-<th:block th:include="/_menu"></th:block>
-<h1>Register</h1>
-<h2 style="color:blue;"
-    th:if="${myForm.signInProvider != null}">Signup with <span th:utex="${myForm.signInProvider}"></span></h2>
-<form th:object="${myForm}" method="POST">
-    <input type="hidden" th:field="*{userId}"  />
-    <input type="hidden" th:field="*{signInProvider}" />
-    <table border="0">
-        <tr>
-            <td>User Name</td>
-            <td><input  th:field="*{userName}" /></td>
-            <td>
-                  <span class="error-message"
-                        th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}">..</span>
-            </td>
-        </tr>
-        <tr>
-            <td>Email</td>
-            <td><input th:field="*{email}" /></td>
-            <td>
-                  <span class="error-message"
-                        th:if="${#fields.hasErrors('email')}" th:errors="*{email}">..</span>
-            </td>
-        </tr>
-        <tr>
-            <td>First Name</td>
-            <td><input th:field="*{firstName}" /></td>
-            <td>
-                  <span class="error-message"
-                        th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">..</span>
-            </td>
-        </tr>
-        <tr>
-            <td>Last Name</td>
-            <td><input th:field="*{lastName}" /></td>
-            <td>
-                  <span class="error-message"
-                        th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">..</span>
-            </td>
-        </tr>
-        <tr>
-            <td>Password</td>
-            <td><input th:field="*{password}" type='password' /></td>
-            <td>
-                  <span class="error-message"
-                        th:if="${#fields.hasErrors('password')}" th:errors="*{password}">..</span>
-            </td>
-        </tr>
-        <tr>
-            <td></td>
-            <td><input type="submit" value="Submit" /></td>
-            <td></td>
-        </tr>
-    </table>
-</form>
-<div class="error-message" th:utext="${errorMessage}"></div>
+<div class="limiter">
+    <div class="container-login100">
+        <div class="wrap-login100">
+            <div class="login100-pic js-tilt" data-tilt>
+                <img th:src="@{/images/img-01.png}" alt="IMG">
+            </div>
+            <form class="login100-form validate-form" th:object="${myForm}" method="POST">
+                <span class="login100-form-title">
+                    Member Register
+                </span>
+                <input type="hidden" th:field="*{userId}"  />
+                <input type="hidden" th:field="*{signInProvider}" />
+
+                <div class="wrap-input100 ">
+                    <input class="input100" th:field="*{userName}" placeholder="Username">
+                    <span class="error-message"
+                          th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}">..</span>
+                </div>
+                <div class="wrap-input100 " >
+                    <input class="input100" th:field="*{email}" placeholder="Email">
+                    <span class="focus-input100"></span>
+                    <span class="symbol-input100">
+							<i class="fa fa-envelope" aria-hidden="true"></i>
+						</span>
+                    <span class="error-message"
+                          th:if="${#fields.hasErrors('email')}" th:errors="*{email}">..</span>
+                </div>
+                <div class="wrap-input100 ">
+                    <input class="input100" th:field="*{firstName}" placeholder="Firstname">
+                    <span class="error-message"
+                          th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">..</span>
+                </div>
+                <div class="wrap-input100 ">
+                    <input class="input100" th:field="*{lastName}" placeholder="Lastname">
+                    <span class="error-message"
+                          th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">..</span>
+                </div>
+                <div class="wrap-input100 ">
+                    <input class="input100" th:field="*{password}" placeholder="Password">
+                    <span class="focus-input100"></span>
+                    <span class="symbol-input100">
+							<i class="fa fa-lock" aria-hidden="true"></i>
+						</span>
+                    <span class="error-message"
+                          th:if="${#fields.hasErrors('password')}" th:errors="*{password}">..</span>
+                </div>
+                <div class="container-login100-form-btn">
+                    <button class="login100-form-btn">
+                        Submit
+                    </button>
+                </div>
+                <div th:if="${myForm.getSignInProvider() != null}">
+                    <h2 style="color:blue;"
+                        th:if="${myForm.getSignInProvider() != ''}">Signup with <span th:utex="${myForm.signInProvider}"></span></h2>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!--===============================================================================================-->
+<script th:src="@{/vendor/jquery/jquery-3.2.1.min.js}"></script>
+<!--===============================================================================================-->
+<script th:src="@{/vendor/bootstrap/js/popper.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.min.js}"></script>
+<!--===============================================================================================-->
+<script th:src="@{/vendor/select2/select2.min.js}"></script>
+<!--===============================================================================================-->
+<script th:src="@{/vendor/tilt/tilt.jquery.min.js}"></script>
+<script >
+    $('.js-tilt').tilt({
+        scale: 1.1
+    })
+</script>
+<!--===============================================================================================-->
+<script th:src="@{/js/main.js}"></script>
+
 </body>
 </html>

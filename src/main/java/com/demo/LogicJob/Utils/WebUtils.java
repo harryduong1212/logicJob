@@ -29,4 +29,18 @@ public class WebUtils {
         return sb.toString();
     }
 
+    public static String getRolsFormPrincipal(UserDetails user) {
+        Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
+        if (authorities != null && !authorities.isEmpty()) {
+            boolean first = true;
+            for (GrantedAuthority a : authorities) {
+                if (first) {
+                    first = false;
+                    return a.getAuthority();
+                }
+            }
+        }
+        return "false";
+    }
+
 }

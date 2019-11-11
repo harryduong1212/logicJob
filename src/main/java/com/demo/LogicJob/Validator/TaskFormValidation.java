@@ -34,12 +34,14 @@ public class TaskFormValidation implements Validator {
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "jobId", "",
                 "jobId is required");
-        if(taskForm.getTaskId() == null) {
-            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "taskName", "",
-                    "taskName is required");
-        } else {
-            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "taskId", "",
-                    "taskId is required");
+        if(taskForm.getJobId() != null) {
+            if(taskForm.getJobId() != 0) {
+                ValidationUtils.rejectIfEmptyOrWhitespace(errors, "taskName", "",
+                        "taskName is required");
+            } else {
+                ValidationUtils.rejectIfEmptyOrWhitespace(errors, "taskId", "",
+                        "taskId is required");
+            }
         }
 
         if(taskJobRepository.findByTaskName(taskForm.getTaskName()) != null) {
@@ -48,7 +50,7 @@ public class TaskFormValidation implements Validator {
 
         JobLogic jobLogic = jobLogicRepository.findJobLogicByJobId(taskForm.getJobId());
 
-        if(jobLogic == null && taskForm.getJobId() != null) {
+        if(jobLogic == null && taskForm.getJobId() != null && taskForm.getJobId() != 0) {
             errors.rejectValue("jobId", "Please enter a valid jobId, object: ");
         }
     }

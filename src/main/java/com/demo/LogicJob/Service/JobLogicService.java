@@ -80,25 +80,15 @@ public class JobLogicService {
             }
 
             JobLogic jobLogic = jobLogicRepository.findJobLogicByJobId(taskForm.getJobId());
-            if(jobLogic.getJobStatus().equals("Done")) {
-                return "This job have been done, please try another";
-            }
 
             TaskJob taskJob = userMapperImpl.toTaskJob(taskForm);
             taskJob.setTaskStatus("Pending");
-
-//            TaskJob taskJob = new TaskJob();
-//            taskJob.setJobTask(jobLogic);
-//            taskJob.setTaskName(taskName);
-//            taskJob.setTaskChecker(jobLogic.getJobChecker());
-//            taskJob.setTaskWorker(jobLogic.getJobWorker());
-//            taskJob.setTaskStatus("Pending");
 
             taskJobRepository.save(taskJob);
             LOGGER.info("TaskName " + taskJob.getTaskName() + " in jobId: " + taskJob.getJobTask().getJobId()
                     + " was create by " + WebUtils.toString(loginedUser));
 
-            if(jobLogic.getJobStatus().equals("New")) {
+            if(jobLogic.getJobStatus().equals("New") || jobLogic.getJobStatus().equals("Done")) {
                 jobLogic.setJobStatus("Inprogress");
                 jobLogicRepository.save(jobLogic);
                 LOGGER.info("Status of JobName " + jobLogic.getJobName() + " was change to Inprogress");
@@ -115,12 +105,15 @@ public class JobLogicService {
             UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
 
             TaskJob taskJob = taskJobRepository.findByTaskId(taskForm.getTaskId());
-
-            if( ( !loginedUser.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
-                    || !loginedUser.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MANAGER")) )
-                    && !userRepository.findAppUserByUserName(principal.getName()).getUserId()
-                    .equals(taskJob.getTaskWorker()) ) {
-                return "You are not authorized to do this";
+            if(taskJob != null) {
+                if( ( !loginedUser.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                        || !loginedUser.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MANAGER")) )
+                        && !userRepository.findAppUserByUserName(principal.getName()).getUserId()
+                        .equals(taskJob.getTaskWorker()) ) {
+                    return "You are not authorized to do this";
+                }
+            } else {
+                return "Task not found";
             }
 
             if(!taskJob.getTaskStatus().equals("Pending") && !taskJob.getTaskStatus().equals("Remanded")) {
@@ -157,12 +150,15 @@ public class JobLogicService {
             }
 
             TaskJob taskJob = taskJobRepository.findByTaskId(taskForm.getTaskId());
-
-            if( ( !loginedUser.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
-                    || !loginedUser.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MANAGER")) )
-                    && !userRepository.findAppUserByUserName(principal.getName()).getUserId()
-                    .equals(taskJob.getTaskChecker()) ) {
-                return "You are not authorized to do this";
+            if(taskJob != null) {
+                if ((!loginedUser.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                        || !loginedUser.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_MANAGER")))
+                        && !userRepository.findAppUserByUserName(principal.getName()).getUserId()
+                        .equals(taskJob.getTaskChecker())) {
+                    return "You are not authorized to do this";
+                }
+            } else {
+                return "Task not found";
             }
 
             if(checkResult) {

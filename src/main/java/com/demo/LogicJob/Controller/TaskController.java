@@ -66,9 +66,10 @@ public class TaskController {
         String userName = principal.getName();
         System.out.println("User name: " + userName);
         UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
-        String userInfo = WebUtils.toString(loginedUser);
-        model.addAttribute("userInfo", userInfo);
+        String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
+        model.addAttribute("userrole", userRole);
         model.addAttribute("newtask", new TaskForm());
+        model.addAttribute("ShowAllJob", jobLogicRepository.findAllByOrderByJobIdAsc());
 
         return "createTaskPage";
     }
@@ -78,13 +79,18 @@ public class TaskController {
                             @ModelAttribute("newtask") @Validated TaskForm taskForm,
                              BindingResult result,
                              Principal principal) {
-        // Validation error.
-        if (result.hasErrors()) {
-            return "createTaskPage";
-        }
 
         try {
+            UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
+            String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
+            model.addAttribute("userrole", userRole);
+            // Validation error.
+            if (result.hasErrors()) {
+                return "createTaskPage";
+            }
+
             String str = jobLogicService.createNewTask(taskForm, principal);
+
             model.addAttribute("showAllTask", taskJobRepository.findAllByJobTask(
                     jobLogicRepository.findJobLogicByJobId( taskForm.getJobId() )));
             model.addAttribute("Message", str);
@@ -104,13 +110,13 @@ public class TaskController {
         String userName = principal.getName();
         System.out.println("User name: " + userName);
         UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
-        String userInfo = WebUtils.toString(loginedUser);
+        String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
         List<TaskJob> taskJobs = taskJobRepository.findAllByTaskWorkerAndStatusOrderByJobTask(
                 userRepository.findAppUserByUserName(userName).getUserId(), "Pending");
         taskJobs.addAll(taskJobRepository.findAllByTaskWorkerAndStatusOrderByJobTask(
                 userRepository.findAppUserByUserName(userName).getUserId(), "Remanded"));
-        model.addAttribute("userInfo", userInfo);
-        model.addAttribute("taskform", new TaskForm(1L));
+        model.addAttribute("userrole", userRole);
+        model.addAttribute("taskform", new TaskForm(0L));
         model.addAttribute("tasklist", taskJobs);
         return "workingPage";
     }
@@ -120,20 +126,21 @@ public class TaskController {
                              @ModelAttribute("taskform") @Validated TaskForm taskForm,
                               BindingResult result,
                               Principal principal) {
-        // Validation error.
-        if (result.hasErrors()) {
-            return "workingPage";
-        }
-
         try {
+            UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
+            String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
+            model.addAttribute("userrole", userRole);
+            // Validation error.
+            if (result.hasErrors()) {
+                return "workingPage";
+            }
+
             String str = jobLogicService.userWorking(taskForm, principal);
             model.addAttribute("Message", str);
             String userName = principal.getName();
-            List<TaskJob> taskJobs = taskJobRepository.findAllByTaskWorkerAndStatusOrderByJobTask(
-                    userRepository.findAppUserByUserName(userName).getUserId(), "Confirmed");
-            taskJobs.addAll(taskJobRepository.findAllByTaskWorkerAndStatusOrderByJobTask(
-                    userRepository.findAppUserByUserName(userName).getUserId(), "Checked"));
-            model.addAttribute("tasklist2", taskJobs);
+            List<TaskJob> taskJobs = taskJobRepository.findAllByTaskWorkerOrderByJobTask(
+                    userRepository.findAppUserByUserName(userName).getUserId());
+            model.addAttribute("tasklist", taskJobs);
         } catch (Exception ex) {
             model.addAttribute("errorMessage", "Error " + ex.getMessage());
             ex.printStackTrace();
@@ -150,12 +157,12 @@ public class TaskController {
         String userName = principal.getName();
         System.out.println("User name: " + userName);
         UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
-        String userInfo = WebUtils.toString(loginedUser);
+        String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
         List<TaskJob> taskJobs = taskJobRepository.findAllByTaskCheckerAndStatusOrderByJobTask(
                 userRepository.findAppUserByUserName(userName).getUserId(), "Confirmed");
 
-        model.addAttribute("userInfo", userInfo);
-        model.addAttribute("taskform", new TaskForm(1L));
+        model.addAttribute("userrole", userRole);
+        model.addAttribute("taskform", new TaskForm(0L, 0L));
         model.addAttribute("tasklist", taskJobs);
         return "checkingPage";
     }
@@ -166,12 +173,16 @@ public class TaskController {
                                @RequestParam(value="action", required=true) String action,
                                BindingResult result,
                                Principal principal) {
-        // Validation error.
-        if (result.hasErrors()) {
-            return "checkingPage";
-        }
 
         try {
+            UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
+            String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
+            model.addAttribute("userrole", userRole);
+            // Validation error.
+            if (result.hasErrors()) {
+                return "checkingPage";
+            }
+
             String str;
             if (action.equals("Accept")) {
                 str = jobLogicService.userChecking(taskForm, true, principal);
@@ -184,7 +195,7 @@ public class TaskController {
                     userRepository.findAppUserByUserName(userName).getUserId(), "Checked");
             taskJobs.addAll(taskJobRepository.findAllByTaskCheckerAndStatusOrderByJobTask(
                     userRepository.findAppUserByUserName(userName).getUserId(), "Remanded"));
-            model.addAttribute("tasklist2", taskJobs);
+            model.addAttribute("tasklist", taskJobs);
         } catch (Exception ex) {
             model.addAttribute("errorMessage", "Error " + ex.getMessage());
             ex.printStackTrace();
