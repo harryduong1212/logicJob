@@ -5,6 +5,7 @@ import com.demo.LogicJob.DAO.TaskJobRepository;
 import com.demo.LogicJob.DAO.UserRepository;
 import com.demo.LogicJob.Entity.JobLogic;
 import com.demo.LogicJob.Entity.TaskJob;
+import com.demo.LogicJob.FormDTO.SearchForm;
 import com.demo.LogicJob.FormDTO.TaskForm;
 import com.demo.LogicJob.Service.JobLogicService;
 import com.demo.LogicJob.Service.UserMapperImpl;
@@ -205,4 +206,42 @@ public class TaskController {
         return "checkingPage";
     }
 
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    public String searchPage(Model model, Principal principal) {
+
+        //After user login successfully.
+        String userName = principal.getName();
+        System.out.println("User name: " + userName);
+        UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
+        String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
+        model.addAttribute("userrole", userRole);
+        model.addAttribute("search", new SearchForm());
+        model.addAttribute("showAllTask", jobLogicService.getAllTask(null));
+
+        return "searchPage";
+    }
+
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    public String search(Model model,
+                             @ModelAttribute("search") @Validated SearchForm searchForm,
+                             BindingResult result,
+                             Principal principal) {
+        try {
+            UserDetails loginedUser = (UserDetails) ((Authentication) principal).getPrincipal();
+            String userRole = WebUtils.getRolsFormPrincipal(loginedUser);
+            model.addAttribute("userrole", userRole);
+            // Validation error.
+            if (result.hasErrors()) {
+                return "searchPage";
+            }
+            List<TaskForm> taskFormList = jobLogicService.searchByKey(searchForm);
+            model.addAttribute("showAllTask", jobLogicService.getAllTask(taskFormList));
+        } catch (Exception ex) {
+            model.addAttribute("errorMessage", "Error " + ex.getMessage());
+            ex.printStackTrace();
+            return "searchPage";
+        }
+
+        return "searchPage";
+    }
 }

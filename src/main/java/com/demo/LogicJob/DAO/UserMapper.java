@@ -22,4 +22,5 @@ public interface UserMapper {
     AppUserForm toUserForm(AppUser appUser);
     AppUser toAppUser(AppUserForm appUserForm);
     List<AppUserForm> toAppUserForm(List<AppUser> appUser);
+    List<TaskForm> toTaskFormList(List<TaskJob> taskJobsList);
 }

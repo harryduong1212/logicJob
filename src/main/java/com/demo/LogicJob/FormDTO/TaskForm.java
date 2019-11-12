@@ -1,5 +1,6 @@
 package com.demo.LogicJob.FormDTO;
 
+import com.demo.LogicJob.Entity.JobLogic;
 import lombok.*;
 
 @Getter
@@ -15,6 +16,7 @@ public class TaskForm {
     private Long taskWorker;
     private Long taskChecker;
     private String taskStatus;
+    private JobForm jobForm;
 
     public TaskForm(Long jobId) {
         this.JobId = jobId;

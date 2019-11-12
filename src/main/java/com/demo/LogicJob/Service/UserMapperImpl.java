@@ -12,6 +12,7 @@ import com.demo.LogicJob.FormDTO.TaskForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -197,5 +198,23 @@ public class UserMapperImpl implements UserMapper {
         }
         LOGGER.info("Convert appUserList to appUserFormList successfully!");
         return appUserForms;
+    }
+
+    @Override
+    public List<TaskForm> toTaskFormList(List<TaskJob> taskJobsList) {
+        if(taskJobsList.isEmpty()) { return null; }
+        List<TaskForm> taskFormList = new ArrayList<>();
+        for(TaskJob task : taskJobsList) {
+            TaskForm.TaskFormBuilder taskForm = TaskForm.builder();
+            taskForm.taskId(task.getTaskId());
+            taskForm.taskName(task.getTaskName());
+            taskForm.taskWorker(task.getTaskWorker());
+            taskForm.taskChecker(task.getTaskChecker());
+            taskForm.taskValue(task.getTaskValue());
+            taskForm.taskStatus(task.getTaskStatus());
+            taskForm.jobForm(this.toJobForm(task.getJobTask()));
+            taskFormList.add(taskForm.build());
+        }
+        return taskFormList;
     }
 }

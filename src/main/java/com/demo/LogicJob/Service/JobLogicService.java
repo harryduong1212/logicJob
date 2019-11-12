@@ -6,17 +6,22 @@ import com.demo.LogicJob.DAO.UserRepository;
 import com.demo.LogicJob.Entity.JobLogic;
 import com.demo.LogicJob.Entity.TaskJob;
 import com.demo.LogicJob.FormDTO.JobForm;
+import com.demo.LogicJob.FormDTO.SearchForm;
 import com.demo.LogicJob.FormDTO.TaskForm;
 import com.demo.LogicJob.Utils.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -160,6 +165,9 @@ public class JobLogicService {
             } else {
                 return "Task not found";
             }
+            if(!taskJob.getTaskStatus().equals("Pending") || !taskJob.getTaskStatus().equals("Remanded")) {
+                return "Task not confirmed yet";
+            }
 
             if(checkResult) {
                 taskJob.setTaskStatus("Checked");
@@ -181,5 +189,56 @@ public class JobLogicService {
             ex.printStackTrace();
         }
         return "Success";
+    }
+
+    public List<TaskForm> searchByKey(SearchForm searchForm) {
+        try {
+            List<TaskJob> taskJobList = new ArrayList<>();
+            for(String x : searchForm.getSearchZone()) {
+                List<TaskJob> tempList = new ArrayList<>();
+                if(!x.equals("jobName") && !x.equals("jobStatus") && !x.equals("jobFlow") && !x.equals("jobId")) {
+                    tempList = taskJobRepository.findAll(
+                            UserSearchSpecification.findAllTaskLike(x, searchForm.getSearchKey()));
+                } else {
+                    tempList = taskJobRepository.findAll(
+                            UserSearchSpecification.findAllJobLike(x, searchForm.getSearchKey()));
+                }
+
+                for(TaskJob y : tempList) {
+                    if(!taskJobList.contains(y)) {
+                        taskJobList.add(y);
+                    }
+                }
+            }
+            return userMapperImpl.toTaskFormList(taskJobList);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<TaskForm> getAllTask(List<TaskForm> taskFormList2) {
+        List<TaskForm> taskFormList = new ArrayList<>();
+        if(taskFormList2 == null) {
+            List<JobLogic> jobLogicList = jobLogicRepository.findAll();
+            List<TaskJob> taskJobsList = new ArrayList<>();
+            for(JobLogic job : jobLogicList) {
+                taskJobsList.addAll(taskJobRepository.findAllByJobTask(job));
+            }
+            taskFormList = userMapperImpl.toTaskFormList(taskJobsList);
+        } else {
+            taskFormList = taskFormList2;
+        }
+        for(TaskForm task : taskFormList) {
+            if(task.getJobForm().getJobStatus().equals("New")) {
+                task.getJobForm().setJobStatus("Waiting");
+            } else if(task.getJobForm().getJobStatus().equals("Inprogress")) {
+                task.getJobForm().setJobStatus("ConfirmingWorking");
+            }
+            if(task.getTaskStatus().equals("Confirmed") && !task.getJobForm().isJobFlow()) {
+                task.setTaskStatus("WorkComplete");
+            }
+        }
+        return taskFormList;
     }
 }

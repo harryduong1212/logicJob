@@ -162,7 +162,6 @@ public class SecurityController {
 
         ProviderSignInUtils providerSignInUtils //
                 = new ProviderSignInUtils(connectionFactoryLocator, connectionRepository);
-
         // Retrieve social networking information.
         Connection<?> connection = providerSignInUtils.getConnectionFromSession(request);
         //

@@ -45,7 +45,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/createtask").access("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')");
 
         // For ADMIN only.
-        http.authorizeRequests().antMatchers("/createjob", "/setrole").access("hasRole('ROLE_ADMIN')");
+        http.authorizeRequests().antMatchers("/createjob", "/setrole", "/search").access("hasRole('ROLE_ADMIN')");
 
         // When the user has logged in as XX.
         // But access a page that requires role YY,

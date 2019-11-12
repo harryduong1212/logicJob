@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" th:href="@{/assets/img/favicon.png}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <title>
-        User Information
+        Search Page
     </title>
     <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
     <!--     Fonts and icons     -->
@@ -43,7 +43,7 @@
         </div>
         <div class="sidebar-wrapper" id="sidebar-wrapper">
             <ul class="nav">
-                <li class="active ">
+                <li>
                     <a th:href="@{/userInfo}">
                         <i class="now-ui-icons users_single-02"></i>
                         <p>User Profile</p>
@@ -87,8 +87,6 @@
                                 Working
                             </a>
                         </li>
-                    </ul>
-                    <ul>
                         <li >
                             <a th:href="@{/checking}">
                                 <i ></i>
@@ -118,7 +116,7 @@
                             <span class="navbar-toggler-bar bar3"></span>
                         </button>
                     </div>
-                    <a class="navbar-brand" href="#harry">User Information</a>
+                    <a class="navbar-brand" href="#harry">Search Page</a>
                 </div>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-bar navbar-kebab"></span>
@@ -155,124 +153,74 @@
         </div>
         <div class="content">
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="card">
-                        <div class="card-header">
-                            <h5 class="title">Edit Profile</h5>
-                        </div>
-                        <div class="card-body">
-                            <form th:object="${userinfo}" method="POST">
-                                <div class="row">
-                                    <div class="col-md-5 pr-1">
-                                        <div class="form-group">
-                                            <label>Email address</label>
-                                            <input type="text" class="form-control" th:value="${userInfo.getUserName()}" th:disabled="true">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 px-1">
-                                        <div class="form-group">
-                                            <label>Username</label>
-                                            <input type="text" class="form-control" th:value="${userInfo.getUserName()}" th:disabled="true">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 pl-1">
-                                        <div class="form-group">
-                                            <label >Role</label>
-                                            <input type="email" class="form-control" th:value="${userInfo.getRole()}" th:disabled="true">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 pr-1">
-                                        <div class="form-group">
-                                            <label>First Name</label>
-                                            <input type="text" class="form-control" th:value="${userInfo.getFirstName()}" th:disabled="true">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 pl-1">
-                                        <div class="form-group">
-                                            <label>Last Name</label>
-                                            <input type="text" class="form-control" th:value="${userInfo.getLastName()}" th:disabled="true">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 pr-1">
-                                        <div class="form-group">
-                                            <label>Password</label>
-                                            <input type="password" class="form-control" th:field="${userInfo.password}">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 pr-1">
-                                        <div class="form-group">
-                                            <p></p>
-                                            <input type="submit" class="btn" value="Change Password" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label>About Me</label>
-                                            <textarea rows="4" cols="80" class="form-control" placeholder="Here can be your description" value="Mike"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                            <div class="error-message" th:utext="${message}"></div>
+                        <form th:object="${search}" method="POST">
+                            <table class="table">
+                                <tr>
+                                    <td>Search</td>
+                                    <td><input  th:field="*{searchKey}" /></td>
+                                    <td>
+                              <span class="error-message"
+                                    th:if="${#fields.hasErrors('searchKey')}" th:errors="*{searchKey}">..</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td><input type="submit" class="btn" value="Submit" /></td>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </form>
+                        <div class="error-message" th:utext="${Message}"></div>
+                        <div class="error-message" th:utext="${errorMessage}"></div>
+
+                        <div th:if="not ${#lists.isEmpty(showAllTask)}" >
+                            <table class="table">
+                                <tr>
+                                    <th >TaskId</th>
+                                    <th >TaskName</th>
+                                    <th >TaskWorker</th>
+                                    <th >TaskChecker</th>
+                                    <th >TaskValue</th>
+                                    <th >TaskStatus</th>
+                                    <th >JobId</th>
+                                    <th >JobName</th>
+                                    <th >JobStatus</th>
+                                    <th >JobFlow</th>
+                                </tr>
+                                <tr th:each="task : ${showAllTask}">
+                                    <td th:text="${task.getTaskId()}">TaskId</td>
+                                    <td th:text="${task.getTaskName()}">TaskName</td>
+                                    <td th:text="${task.getTaskWorker()}">TaskWorker</td>
+                                    <td th:text="${task.getTaskChecker()}">TaskChecker</td>
+                                    <td th:text="${task.getTaskValue()}">TaskValue</td>
+                                    <td th:text="${task.getTaskStatus()}">TaskStatus</td>
+                                    <td th:text="${task.getJobForm().getJobId()}">JobId</td>
+                                    <td th:text="${task.getJobForm().getJobName()}">JobName</td>
+                                    <td th:text="${task.getJobForm().getJobStatus()}">JobStatus</td>
+                                    <td th:text="${task.getJobForm().isJobFlow()}">JobFlow</td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
                 </div>
-<!--                <div class="col-md-4">-->
-<!--                    <div class="card card-user">-->
-<!--                        <div class="image">-->
-<!--                            <img th:src="@{/assets/img/bg5.jpg}" alt="...">-->
-<!--                        </div>-->
-<!--                        <div class="card-body">-->
-<!--                            <div class="author">-->
-<!--                                <a href="#">-->
-<!--                                    <img class="avatar border-gray" th:src="@{/assets/img/mike.jpg}" alt="...">-->
-<!--                                    <h5 class="title">Mike Andrew</h5>-->
-<!--                                </a>-->
-<!--                                <p class="description">-->
-<!--                                    michael24-->
-<!--                                </p>-->
-<!--                            </div>-->
-<!--                            <p class="description text-center">-->
-<!--                                "Lamborghini Mercy-->
-<!--                                <br> Your chick she so thirsty-->
-<!--                                <br> I'm in that two seat Lambo"-->
-<!--                            </p>-->
-<!--                        </div>-->
-<!--                        <hr>-->
-<!--                        <div class="button-container">-->
-<!--                            <button href="#" class="btn btn-neutral btn-icon btn-round btn-lg">-->
-<!--                                <i class="fab fa-facebook-f"></i>-->
-<!--                            </button>-->
-<!--                            <button href="#" class="btn btn-neutral btn-icon btn-round btn-lg">-->
-<!--                                <i class="fab fa-twitter"></i>-->
-<!--                            </button>-->
-<!--                            <button href="#" class="btn btn-neutral btn-icon btn-round btn-lg">-->
-<!--                                <i class="fab fa-google-plus-g"></i>-->
-<!--                            </button>-->
-<!--                        </div>-->
-<!--                    </div>-->
-                </div>
             </div>
         </div>
-        <footer class="footer">
-            <div class="container-fluid">
-                <div class="copyright" id="copyright">
-                    &copy;
-                    <script>
-                        document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))
-                    </script>, Designed by
-                    <a th:href="@{https://www.invisionapp.com}" target="_blank">Invision</a>. Coded by
-                    <a th:href="@{https://www.creative-tim.com}" target="_blank">Creative Tim</a>.
-                </div>
-            </div>
-        </footer>
     </div>
+    <footer class="footer">
+        <div class="container-fluid">
+            <div class="copyright" id="copyright">
+                &copy;
+                <script>
+                    document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))
+                </script>, Designed by
+                <a th:href="@{https://www.invisionapp.com}" target="_blank">Invision</a>. Coded by
+                <a th:href="@{https://www.creative-tim.com}" target="_blank">Creative Tim</a>.
+            </div>
+        </div>
+    </footer>
+</div>
 </div>
 <!--   Core JS Files   -->
 <script th:src="@{/assets/js/core/jquery.min.js}"></script>
