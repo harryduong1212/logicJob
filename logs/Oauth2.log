@@ -605,3 +605,6 @@
 2019-thg 11-13 10:30:00.057 INFO  [scheduling-1] c.d.L.S.UserMapperImpl - Convert appUser to appUserForm successfully! User: testuser
 2019-thg 11-13 10:30:00.152 INFO  [scheduling-1] c.d.L.S.UserMapperImpl - Convert appUser to appUserForm successfully! User: johny.hitwell1@gmail.com
 2019-thg 11-13 10:30:00.156 INFO  [scheduling-1] c.d.L.S.UserMapperImpl - Convert appUser to appUserForm successfully! User: admin
+2019-thg 11-13 11:30:00.019 INFO  [scheduling-1] c.d.L.S.UserMapperImpl - Convert appUser to appUserForm successfully! User: testuser
+2019-thg 11-13 11:30:00.024 INFO  [scheduling-1] c.d.L.S.UserMapperImpl - Convert appUser to appUserForm successfully! User: johny.hitwell1@gmail.com
+2019-thg 11-13 11:30:00.027 INFO  [scheduling-1] c.d.L.S.UserMapperImpl - Convert appUser to appUserForm successfully! User: admin
